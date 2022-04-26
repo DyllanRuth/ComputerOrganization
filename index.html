@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Computer Simulator</title>
     <link type='text/css' rel='stylesheet' href='styles.css'/> 
     <script src='script.js'></script> 
   </head> 
   <body>
     <h2>A Simple Computer Simulator</h2> 
-    <p>This computer demonstrates the workings of a simple computer. It has 100 memory locations in a 10 by 10 grid with addresses 0 to 99 numbered from the top left row by row. The computer has a program counter which is stored in register PC and an accumulator AX. You may single step through a program or run it in one sequence. You may also specify the delay speed to observe the actions of the machine. Memory cells that are referenced become green for one instruction, those that are changed become red. This demonstrates some of the aspects of machine and assembly language programming.</p> 
+    <p>This computer demonstrates the workings of a simple computer. It has 100 memory locations in a 10 by 10 grid with addresses 0 to 99 numbered from the top left row by row. The computer has a program counter which is stored in register PC and an accumulator XXX. You may single step through a program or run it in one sequence. You may also specify the delay speed to observe the actions of the machine. Memory cells that are referenced become green for one instruction, those that are changed become red. This demonstrates some of the aspects of machine and assembly language programming.</p> 
     <p>This simulator was originally written as a Java applet by <a href='https://web.archive.org/web/20160323003713/http://cs.laurentian.ca/badams/'>Barry G. Adams</a> of <a href='http://www.laurentian.ca/www/emenus/home.html'>Laurentian University</a>. Several features (<a href='http://euler.vcsu.edu/curt.hill/Computer.html'>Description</a>, <a href='computer.zip'>Source</a>) were added by <a href='http://euler.vcsu.edu/curt.hill/'>Curt Hill</a> of <a href='https://www.vcsu.edu'>Valley City State University</a>, who also provided the vintage background. Cay Horstmann reimplemented the simulator in JavaScript.</p> 
     <p>The following table shows the instructions that are available for this computer: </p> 
     <table border='1'>
@@ -24,61 +24,49 @@
         <td>STORE</td> 
         <td>160</td> 
         <td>n</td> 
-        <td>Store the contents of AX in memory location n</td> 
+        <td>Store the contents of XXX in memory location n</td> 
       </tr> 
       <tr>
         <td>LOAD</td> 
         <td>161</td> 
         <td>n</td> 
-        <td>Load AX with the contents of location n</td> 
+        <td>Load XXX with the contents of location n</td> 
       </tr> 
       <tr>
         <td>ADDI</td> 
         <td>44</td> 
         <td>n</td> 
-        <td>Add n to AX (add immediate)</td> 
+        <td>Add n to XXX (add immediate)</td> 
       </tr> 
       <tr>
         <td>SUBI</td> 
         <td>45</td> 
         <td>n</td> 
-        <td>Subtract n from AX (subtract immediate)</td> 
+        <td>Subtract n from XXX (subtract immediate)</td> 
       </tr> 
       <tr>
         <td>ADD</td> 
         <td>50</td> 
         <td>n</td> 
-        <td>Add the contents of location n to AX</td> 
+        <td>Add the contents of location n to XXX</td> 
       </tr> 
       <tr>
         <td>SUB</td> 
         <td>51</td> 
         <td>n</td> 
-        <td>Subtract the contents of location n from AX</td> 
-      </tr> 
-      <tr>
-        <td>MUL</td> 
-        <td>52</td> 
-        <td>n</td> 
-        <td>Multiply the contents AX by the contents of location n</td> 
-      </tr> 
-      <tr>
-        <td>DIV</td> 
-        <td>53</td> 
-        <td>n</td> 
-        <td>Divide the contents of AX by the contents of location n</td> 
-      </tr> 
+        <td>Subtract the contents of location n from XXX</td> 
+      </tr>
       <tr>
         <td>JPOS</td> 
         <td>127</td> 
         <td>n</td> 
-        <td>Jump to the instruction in location n if AX &gt; 0</td> 
+        <td>Jump to the instruction in location n if XXX &gt; 0</td> 
       </tr> 
       <tr>
         <td>JZERO</td> 
         <td>128</td> 
         <td>n</td> 
-        <td>Jump to the instruction in location n if AX = 0</td> 
+        <td>Jump to the instruction in location n if XXX = 0</td> 
       </tr> 
       <tr>
         <td>HALT</td> 
@@ -89,7 +77,7 @@
     </table> 
     <hr/> 
     <table id='mem'></table> 
-    <div id='reg'>Registers: PC <input id='pc' size='5'/> AX <input id='ax' size='5'/> </div> 
+    <div id='reg'>Registers: PC <input id='pc' size='5'/> XXX <input id='xxx' size='5'/> </div> 
     <div id='control'>
       <button id='run'>Run</button> 
       <button id='halt'>Halt</button> 

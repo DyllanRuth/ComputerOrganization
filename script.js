@@ -1,19 +1,17 @@
 window.addEventListener('load', () => {
     const opcodes = {
-      'store': 160,
-      'load': 161,
-      'addi': 44,
-      'subi': 45,
-      'add': 50,
-      'sub': 51,
-      'mul': 52,
-      'div': 53,
-      'jpos': 127,
-      'jzero': 128,
-      'halt': 0
+      'CLAIM': 160,
+      'PLACE': 161,
+      'DO_NEXT': 44,
+      'DO_PREV': 45,
+      'DO_ADD': 50,
+      'DO_SUB': 51,
+      'GOTO': 127,
+      'GOTO2': 128,
+      'STOP': 0
     }
   
-    const numericOpCodes = [160, 161, 44, 45, 50, 52, 52, 127, 128, 0]
+    const numericOpCodes = [160, 161, 44, 45, 50, 51, 127, 128, 0]
   
     const opcodeOf = n => {
       if (typeof n === 'string' && n.toLowerCase() in opcodes) return opcodes[n.toLowerCase()]
@@ -64,7 +62,7 @@ window.addEventListener('load', () => {
   
     const memCells = []
     const pcCell = document.getElementById('pc')
-    const axCell = document.getElementById('ax')
+    const xxxCell = document.getElementById('xxx')
     let halted = false
   
     const step = async () => {
@@ -73,33 +71,27 @@ window.addEventListener('load', () => {
       if (opcode === 0 || !numericOpCodes.includes(opcode)) return false
       let arg = await read(memCells[pc + 1])
       if (opcode === 160) { // STORE
-        await write(memCells[arg], await read(axCell))
+        await write(memCells[arg], await read(xxxCell))
         pc += 2
       } else if (opcode === 161) { // LOAD
-        await write(axCell, await read(memCells[arg]))
+        await write(xxxCell, await read(memCells[arg]))
         pc += 2
       } else if (opcode === 44) { // ADDI
-        await write(axCell, await read(axCell) + arg)
+        await write(xxxCell, await read(xxxCell) + arg)
         pc += 2
       } else if (opcode === 45) { // SUBI
-        await write(axCell, await read(axCell) - arg)
+        await write(xxxCell, await read(xxxCell) - arg)
         pc += 2
       } else if (opcode === 50) { // ADD
-        await write(axCell, await read(axCell) + await read(memCells[arg]))
+        await write(xxxCell, await read(xxxCell) + await read(memCells[arg]))
         pc += 2
       } else if (opcode === 51) { // SUB
-        await write(axCell, await read(axCell) - await read(memCells[arg]))
-        pc += 2
-      } else if (opcode === 52) { // MUL
-        await write(axCell, await read(axCell) * await read(memCells[arg]))
-        pc += 2
-      } else if (opcode === 53) { // DIV
-        await write(axCell, divide(await read(axCell), await read(memCells[arg])))
+        await write(xxxCell, await read(xxxCell) - await read(memCells[arg]))
         pc += 2
       } else if (opcode === 127) { // JPOS
-        if (await read(axCell) > 0) pc = arg; else pc += 2
+        if (await read(xxxCell) > 0) pc = arg; else pc += 2
       } else if (opcode === 128) { // JZERO
-        if (await read(axCell) === 0) pc = arg; else pc += 2        
+        if (await read(xxxCell) === 0) pc = arg; else pc += 2        
       }
       write(pcCell, pc)
       return true 
@@ -109,7 +101,7 @@ window.addEventListener('load', () => {
       halted = false
       let more = true
       pcCell.value = '0'
-      axCell.value = ''
+      xxxCell.value = ''
       while (more && !halted) {
         more = await step()
       } 
@@ -128,7 +120,7 @@ window.addEventListener('load', () => {
       for (const r of runs) {
         const mem = savedMem.map(m => numValue(m))
         let pc = 0
-        let ax = 0
+        let xxx = 0
         for (let key in r.before) 
           mem[key] = numValue(r.before[key])
         const MAX_STEPS = 1000
@@ -141,34 +133,28 @@ window.addEventListener('load', () => {
             more = false
           else {
             const arg = mem[pc + 1]
-            if (opcode === 160) { // STORE
-              mem[arg] = ax
+            if (opcode === 160) { // CLAIM
+              mem[arg] = xxx
               pc += 2
-            } else if (opcode === 161) { // LOAD
-              ax = mem[arg]
+            } else if (opcode === 161) { // PLACE
+              xxx = mem[arg]
               pc += 2
-            } else if (opcode === 44) { // ADDI
-              ax = ax + arg
+            } else if (opcode === 44) { // DO_NEXT
+              xxx = xxx + arg
               pc += 2
-            } else if (opcode === 45) { // SUBI
-              ax = ax - arg
+            } else if (opcode === 45) { // DO_PREV
+              xxx = xxx - arg
               pc += 2
-            } else if (opcode === 50) { // ADD
-              ax = ax + mem[arg]
+            } else if (opcode === 50) { // DO_ADD
+              xxx = xxx + mem[arg]
               pc += 2
-            } else if (opcode === 51) { // SUB
-              ax = ax - mem[arg]
+            } else if (opcode === 51) { // DO_SUB
+              xxx = xxx - mem[arg]
               pc += 2
-            } else if (opcode === 52) { // MUL
-              ax = ax * mem[arg]
-              pc += 2
-            } else if (opcode === 53) { // DIV
-              ax = divide(ax, mem[arg])
-              pc += 2
-            } else if (opcode === 127) { // JPOS
-              if (ax > 0) pc = arg; else pc += 2
-            } else if (opcode === 128) { // JZERO
-              if (ax === 0) pc = arg; else pc += 2        
+            } else if (opcode === 127) { // GOTO
+              if (xxx > 0) pc = arg; else pc += 2
+            } else if (opcode === 128) { // GOTO2
+              if (xxx === 0) pc = arg; else pc += 2        
             }
           }
         }
