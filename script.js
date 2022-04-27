@@ -1,14 +1,14 @@
 window.addEventListener('load', () => {
     const opcodes = {
-      'CLAIM': 160,
-      'PLACE': 161,
-      'DO_NEXT': 44,
-      'DO_PREV': 45,
-      'DO_ADD': 50,
-      'DO_SUB': 51,
-      'GOTO': 127,
-      'GOTO2': 128,
-      'STOP': 0
+      'claim': 160,
+      'place': 161,
+      'do_next': 44,
+      'do_prev': 45,
+      'do_add': 50,
+      'do_sub': 51,
+      'goto': 127,
+      'goto2': 128,
+      'stop': 0
     }
   
     const numericOpCodes = [160, 161, 44, 45, 50, 51, 127, 128, 0]
@@ -62,7 +62,7 @@ window.addEventListener('load', () => {
   
     const memCells = []
     const pcCell = document.getElementById('pc')
-    const xxxCell = document.getElementById('xxx')
+    const bxCell = document.getElementById('bx')
     let halted = false
   
     const step = async () => {
@@ -70,28 +70,28 @@ window.addEventListener('load', () => {
       let opcode = await read(memCells[pc])
       if (opcode === 0 || !numericOpCodes.includes(opcode)) return false
       let arg = await read(memCells[pc + 1])
-      if (opcode === 160) { // STORE
-        await write(memCells[arg], await read(xxxCell))
+      if (opcode === 160) { // claim
+        await write(memCells[arg], await read(bxCell))
         pc += 2
-      } else if (opcode === 161) { // LOAD
-        await write(xxxCell, await read(memCells[arg]))
+      } else if (opcode === 161) { // place
+        await write(bxCell, await read(memCells[arg]))
         pc += 2
-      } else if (opcode === 44) { // ADDI
-        await write(xxxCell, await read(xxxCell) + arg)
+      } else if (opcode === 44) { // do_next
+        await write(bxCell, await read(bxCell) + arg)
         pc += 2
-      } else if (opcode === 45) { // SUBI
-        await write(xxxCell, await read(xxxCell) - arg)
+      } else if (opcode === 45) { // do_prev
+        await write(bxCell, await read(bxCell) - arg)
         pc += 2
-      } else if (opcode === 50) { // ADD
-        await write(xxxCell, await read(xxxCell) + await read(memCells[arg]))
+      } else if (opcode === 50) { // do_add
+        await write(bxCell, await read(bxCell) + await read(memCells[arg]))
         pc += 2
-      } else if (opcode === 51) { // SUB
-        await write(xxxCell, await read(xxxCell) - await read(memCells[arg]))
+      } else if (opcode === 51) { // do_sub
+        await write(bxCell, await read(bxCell) - await read(memCells[arg]))
         pc += 2
-      } else if (opcode === 127) { // JPOS
-        if (await read(xxxCell) > 0) pc = arg; else pc += 2
-      } else if (opcode === 128) { // JZERO
-        if (await read(xxxCell) === 0) pc = arg; else pc += 2        
+      } else if (opcode === 127) { // goto
+        if (await read(bxCell) > 0) pc = arg; else pc += 2
+      } else if (opcode === 128) { // goto2
+        if (await read(bxCell) === 0) pc = arg; else pc += 2        
       }
       write(pcCell, pc)
       return true 
@@ -101,7 +101,7 @@ window.addEventListener('load', () => {
       halted = false
       let more = true
       pcCell.value = '0'
-      xxxCell.value = ''
+      bxCell.value = ''
       while (more && !halted) {
         more = await step()
       } 
@@ -120,7 +120,7 @@ window.addEventListener('load', () => {
       for (const r of runs) {
         const mem = savedMem.map(m => numValue(m))
         let pc = 0
-        let xxx = 0
+        let bx = 0
         for (let key in r.before) 
           mem[key] = numValue(r.before[key])
         const MAX_STEPS = 1000
@@ -134,27 +134,27 @@ window.addEventListener('load', () => {
           else {
             const arg = mem[pc + 1]
             if (opcode === 160) { // CLAIM
-              mem[arg] = xxx
+              mem[arg] = bx
               pc += 2
             } else if (opcode === 161) { // PLACE
-              xxx = mem[arg]
+              bx = mem[arg]
               pc += 2
             } else if (opcode === 44) { // DO_NEXT
-              xxx = xxx + arg
+              bx = bx + arg
               pc += 2
             } else if (opcode === 45) { // DO_PREV
-              xxx = xxx - arg
+              bx = bx - arg
               pc += 2
             } else if (opcode === 50) { // DO_ADD
-              xxx = xxx + mem[arg]
+              bx = bx + mem[arg]
               pc += 2
             } else if (opcode === 51) { // DO_SUB
-              xxx = xxx - mem[arg]
+              bx = bx - mem[arg]
               pc += 2
             } else if (opcode === 127) { // GOTO
-              if (xxx > 0) pc = arg; else pc += 2
+              if (bx > 0) pc = arg; else pc += 2
             } else if (opcode === 128) { // GOTO2
-              if (xxx === 0) pc = arg; else pc += 2        
+              if (bx === 0) pc = arg; else pc += 2        
             }
           }
         }
@@ -207,24 +207,24 @@ window.addEventListener('load', () => {
     }
     document.getElementById('run').addEventListener('click', run)
     document.getElementById('step').addEventListener('click', step)
-    document.getElementById('halt').addEventListener('click', () => { halted = true })
+    document.getElementById('stop').addEventListener('click', () => { halted = true })
     document.getElementById('sample1').addEventListener('click', () =>
-      setSample({ '0': 'load', '1': 99, '2': 'subi', '3': 1, '4': 'jpos', '5': 2, '6': 'halt', '99': 5 }))
+      setSample({ '0': 'place', '1': 99, '2': 'do_prev', '3': 1, '4': 'goto', '5': 2, '6': 'stop', '99': 5 }))
     document.getElementById('sample2').addEventListener('click', () =>
-      setSample({ '0': 'load', '1': 32, '2': 'store', '3': 31,
-                  '4': 'load', '5': 30, '6': 'mul', '7': 31,
-                  '8': 'store', '9': 31, '10': 'load', '11': 30,
-                  '12': 'subi', '13': 1, '14': 'store', '15': 30,
-                  '16': 'jpos', '17': 6, '18': 'halt',
+      setSample({ '0': 'place', '1': 32, '2': 'claim', '3': 31,
+                  '4': 'place', '5': 30,
+                  '8': 'claim', '9': 31, '10': 'place', '11': 30,
+                  '12': 'do_prev', '13': 1, '14': 'claim', '15': 30,
+                  '16': 'goto', '17': 6, '18': 'stop',
                   '30': 4, '31': 0, '32': 1
                 }))
     document.getElementById('sample3').addEventListener('click', () =>
-      setSample({ '0': 'load', '1': 52, '2': 'add', '3': 50,
-                  '4': 'store', '5': 50, '6': 'load', '7': 1,
-                  '8': 'addi', '9': 1, '10': 'store', '11': 1,
-                  '12': 'load', '13': 51, '14': 'subi', '15': 1,
-                  '16': 'store', '17': 51, '18': 'jpos', '19': 0,
-                  '20': 'halt',
+      setSample({ '0': 'place', '1': 52, '2': 'do_add', '3': 50,
+                  '4': 'claim', '5': 50, '6': 'place', '7': 1,
+                  '8': 'do_next', '9': 1, '10': 'claim', '11': 1,
+                  '12': 'place', '13': 51, '14': 'do_prev', '15': 1,
+                  '16': 'claim', '17': 51, '18': 'goto', '19': 0,
+                  '20': 'stop',
                   '50': 0, '51': 5, '52': 10, '53': 20, '54': 30, '55': 40, '56': 50
                 }))
     if (typeof runs !== 'undefined') {
